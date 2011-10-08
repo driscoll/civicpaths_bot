@@ -332,7 +332,7 @@ def typical():
     queue = search_many(config['KEYWORDS'], history.since_id)
 
     # Reset the lastupdate to now
-    history.lastupdate = str(datetime.now())
+    history.lastupdate = datetime.strftime(datetime.now(), TWIT_DATETIME_FORMAT)
 
     new_tweets = process(queue, history.tweets.keys())
 
