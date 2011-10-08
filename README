@@ -1,0 +1,116 @@
+Civic Paths Bot
+====================================
+
+Simple Python module for creating 
+bots that track and RT tweets based 
+on keywords/phrases. 
+
+Configuration
+====================================
+
+Your bot's configuration is stored
+in HISTORY_FILENAME
+
+The first time you run the bot, an 
+empty configuration file is created.
+You will have to edit this by hand.
+
+The empty config file looks like this:
+
+{
+    "BOT_USER_ID": "",
+    "KEYWORDS": [], 
+    "CONSUMER_KEY": "", 
+    "CONSUMER_SECRET": "", 
+    "OAUTH_TOKEN": "", 
+    "OAUTH_TOKEN_SECRET": ""
+}
+
+BOT_USER_ID refers to the unique 
+numerical ID assigned by Twitter to
+each user. If you don't know yours:
+* http://www.idfromuser.com
+
+KEYWORDS contains a list of strings 
+to search with, e,g. 
+["#civicpaths","civic engagement"] 
+
+CONSUMER_KEY, CONSUMER_SECRET, 
+OAUTH_TOKEN, and OAUTH_TOKEN_SECRET
+refer to Twitter's OAuth validation
+process. Most people reading this
+should set up a single-use token:
+* https://dev.twitter.com/docs/auth/oauth/single-user-with-examples
+
+
+Typical usage
+====================================
+
+The typical() function represents a
+simple sequence that you might use in
+a cron job.
+
+* Load history
+* Search for each keyword
+* Process the new tweets
+* Send out RTs
+* Dump history
+* Quit
+
+
+Note on History 
+====================================
+
+Civic Paths Bot was designed for a 
+very low traffic situation (1-2 tweets
+per day.) The history file will get 
+quite large if your search criteria
+is more broad.
+
+One work around is to periodically 
+archive the history files by hand.
+
+As long as you maintain the values for
+lastupdate and since_id, the bot will
+avoid duplicating old messages.
+
+An example of a blank history might
+be:
+
+{
+    "lastupdate": "2011-10-08 14:17:14.114872", 
+    "since_id": "122503982349426688",
+    "tweets": {}
+}
+
+
+Wishlist
+====================================
+
+* Improve history system to handle very large numbers of tweets 
+* Setup commandline params
+* Respond to DMs, @s, follows
+* User whitelist/blacklist?
+* Handle Twitter HTTP errors smarter
+** https://dev.twitter.com/docs/error-codes-responses
+* Walk new users through the OAUTH process 
+** https://dev.twitter.com/docs/auth/oauth
+
+
+About Civic Paths Bot 
+====================================
+
+Developed for the Civic Paths research group
+* http://civicpaths.uscannenberg.org
+
+Depends on Python Twitter Tools: 
+* http://mike.verdone.ca/twitter/
+
+This version of Civic Paths Bot was released under an MIT License.
+
+
+Credits
+====================================
+
+Developers:
+Kevin Driscoll <driscollkevin@gmail.com>
