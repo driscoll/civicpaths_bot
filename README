@@ -20,6 +20,7 @@ The empty config file looks like this:
 {
     "BOT_USER_ID": "",
     "KEYWORDS": [], 
+    "BLACKLIST": [], 
     "CONSUMER_KEY": "", 
     "CONSUMER_SECRET": "", 
     "OAUTH_TOKEN": "", 
@@ -34,6 +35,10 @@ each user. If you don't know yours:
 KEYWORDS contains a list of strings 
 to search with, e,g. 
 ["#civicpaths","civic engagement"] 
+
+BLACKLIST contains a list of integers
+corresponding to Twitter user IDs to
+to ignore.
 
 CONSUMER_KEY, CONSUMER_SECRET, 
 OAUTH_TOKEN, and OAUTH_TOKEN_SECRET
@@ -90,7 +95,6 @@ Wishlist
 * Improve history system to handle very large numbers of tweets 
 * Setup commandline params
 * Respond to DMs, @s, follows
-* User whitelist/blacklist?
 * Handle Twitter HTTP errors smarter
 ** https://dev.twitter.com/docs/error-codes-responses
 * Walk new users through the OAUTH process 

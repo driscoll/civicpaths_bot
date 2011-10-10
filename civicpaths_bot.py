@@ -32,6 +32,7 @@ CONFIG_FILENAME = 'civicpaths_config.json'
 # Constants stored in global dict 
 config = {
     "KEYWORDS" : [],        # strings to track
+    "BLACKLIST" : [],       # user IDs to ignore
     "BOT_USER_ID": "",      # Twitter user ID
     "CONSUMER_KEY": "",     # OAuth tokens, keys
     "CONSUMER_SECRET": "",
@@ -251,6 +252,7 @@ def process(new_tweets, old_tweet_ids=[]):
     our = 0
     dupe = 0
     new = 0
+    blacklist = 0
 
     # Iterate over each new tweet and
     # test it against our battery of heuristics
@@ -260,6 +262,10 @@ def process(new_tweets, old_tweet_ids=[]):
         if (twit[u'from_user_id'] == config["BOT_USER_ID"]):
             our += 1
 
+        # Check against blacklist
+        elif (twit[u'from_user_id'] in config["BLACKLIST"]):
+            blacklist += 1
+
         # Prevent dupes
         elif (twit[u'id_str'] in old_tweet_ids):
             dupe += 1
@@ -268,7 +274,7 @@ def process(new_tweets, old_tweet_ids=[]):
             new += 1
             queue.append(twit)
             
-    print 'Found {0} new tweets, {1} of our tweets, and {2} duplicates.'.format(new, our, dupe)
+    print 'Found {0} new tweets, {1} of our tweets, {2} duplicates, and {3} blacklists.'.format(new, our, dupe, blacklist)
     print
 
     # To ensure proper chronology, 
