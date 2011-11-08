@@ -13,10 +13,14 @@ Depends on Mike Verdone's Python Twitter Tools:
 
 Copyright 2011 Kevin Driscoll <driscollkevin@gmail.com>
 
+TODO 
+* Still having encoding issues, check solution in quickndirty?
+
 """
 
-import twitter
 import json
+import re
+import twitter
 import urlparse
 from sys import exit
 from os import getcwd
@@ -29,6 +33,10 @@ TWIT_DATETIME_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
 HISTORY_FILENAME = 'civicpaths_history.json'
 CONFIG_FILENAME = 'civicpaths_config.json'
 
+# Regex matching a RT without comment
+# Used in the process() method
+RE_RT = re.compile('^[a-zA-Z0-9_:]*? RT @[a-zA-Z_0-9:]* ')
+
 # Constants stored in global dict 
 config = {
     "KEYWORDS" : [],        # strings to track
@@ -37,7 +45,8 @@ config = {
     "CONSUMER_KEY": "",     # OAuth tokens, keys
     "CONSUMER_SECRET": "",
     "OAUTH_TOKEN": "",
-    "OAUTH_TOKEN_SECRET": ""
+    "OAUTH_TOKEN_SECRET": "",
+    "DEBUG":"1"
 }
 
 # Load constants from CONFIG_FILENAME
@@ -190,9 +199,10 @@ def rewrite(tweet):
     # If it is > 140 chars, chop it down 
     if len(rt) > 140:
         rt = shorten(rt)    
-    # For testing, uncomment these lines:
-    # rt = rt.replace('@','_')
-    # rt = rt.replace('#','_')
+    # DEBUG For testing, uncomment these lines:
+    if config["DEBUG"]:
+        rt = rt.replace('@','_')
+        rt = rt.replace('#','_')
     return rt
 
 def search(q, since_id=1):
@@ -252,6 +262,7 @@ def process(new_tweets, old_tweet_ids=[]):
     our = 0
     dupe = 0
     new = 0
+    rt = 0
     blacklist = 0
 
     # Iterate over each new tweet and
@@ -261,6 +272,10 @@ def process(new_tweets, old_tweet_ids=[]):
         # Check to be sure it's not from us!
         if (twit[u'from_user_id'] == config["BOT_USER_ID"]):
             our += 1
+
+        # Check that it's not merely a RT without comment
+        elif RE_RT.search(twit[u'text']):
+            rt += 1 
 
         # Check against blacklist
         elif (twit[u'from_user_id'] in config["BLACKLIST"]):
@@ -273,8 +288,13 @@ def process(new_tweets, old_tweet_ids=[]):
         else:
             new += 1
             queue.append(twit)
-            
-    print 'Found {0} new tweets, {1} of our tweets, {2} duplicates, and {3} blacklists.'.format(new, our, dupe, blacklist)
+    
+    print 'Summary'        
+    print 'New tweets {0}'.format(new)
+    print 'Our tweets {0}'.format(our)
+    print 'Duplicates {0}'.format(dupe)
+    print 'Retweets   {0}'.format(rt)
+    print 'Blacklist  {0}'.format(blacklist)
     print
 
     # To ensure proper chronology, 
