@@ -33,9 +33,12 @@ TWIT_DATETIME_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
 HISTORY_FILENAME = 'civicpaths_history.json'
 CONFIG_FILENAME = 'civicpaths_config.json'
 
-# Regex matching a RT without comment
-# Used in the process() method
-RE_RT = re.compile('^[a-zA-Z0-9_:]*? RT @[a-zA-Z_0-9:]* ')
+# List of regex matching diff kinds of RTs
+# We don't want boring RTs without commentary
+# (Used in the process() method)
+RE_RT = [
+    re.compile('^RT')
+]
 
 # Constants stored in global dict 
 config = {
@@ -194,7 +197,9 @@ def rewrite(tweet):
     # Find the user's screen name
     from_user = tweet[u'from_user'] 
     # Strip away the screen name from the tweet
-    text = tweet[u'text'][(len(from_user)+2):] 
+    # They used to include the username in the text
+    # text = tweet[u'text'][(len(from_user)+2):] 
+    text = tweet[u'text']
     rt = u'RT @{0} {1}'.format(from_user, unescape(text)) 
     # If it is > 140 chars, chop it down 
     if len(rt) > 140:
@@ -273,10 +278,6 @@ def process(new_tweets, old_tweet_ids=[]):
         if (twit[u'from_user_id'] == config["BOT_USER_ID"]):
             our += 1
 
-        # Check that it's not merely a RT without comment
-        elif RE_RT.search(twit[u'text']):
-            rt += 1 
-
         # Check against blacklist
         elif (twit[u'from_user_id'] in config["BLACKLIST"]):
             blacklist += 1
@@ -286,8 +287,17 @@ def process(new_tweets, old_tweet_ids=[]):
             dupe += 1
 
         else:
-            new += 1
-            queue.append(twit)
+            # Check that it's not merely a RT without comment
+            is_rt = False
+            for regex in RE_RT:
+                if regex.search(twit[u'text']):
+                    is_rt = True
+                    break
+            if is_rt:
+                rt += 1
+            else:
+                new += 1
+                queue.append(twit)
     
     print 'Summary'        
     print 'New tweets {0}'.format(new)
