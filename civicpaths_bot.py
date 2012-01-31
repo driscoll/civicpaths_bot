@@ -30,8 +30,8 @@ from datetime import datetime
 from calendar import timegm
 
 TWIT_DATETIME_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
-HISTORY_FILENAME = 'civicpaths_history.json'
-CONFIG_FILENAME = 'civicpaths_config.json'
+HISTORY_FILENAME = '/home/driscoll/code/civicpaths/civicpaths_bot/civicpaths_history.json'
+CONFIG_FILENAME = '/home/driscoll/code/civicpaths/civicpaths_bot/civicpaths_config.json'
 
 # List of regex matching diff kinds of RTs
 # We don't want boring RTs without commentary
@@ -117,7 +117,7 @@ class History(object):
             self.tweets = json_history[u'tweets']
             self.status()
         except:
-            print u'Couldn\'t open {0}/{1}'.format(getcwd(), HISTORY_FILENAME)
+            print u'Couldn\'t open {0}'.format(HISTORY_FILENAME)
 
     def dump(self):
         """Write history to JSON file on disk
@@ -151,7 +151,7 @@ class History(object):
         }
 
         # Export JSON of past tweet IDs
-        print u'Writing history to \'{0}\\{1}\''.format(getcwd(), HISTORY_FILENAME)
+        print u'Writing history to {0}'.format(HISTORY_FILENAME)
         print
         h = open(HISTORY_FILENAME, 'w')
         json.dump(json_history, h, indent=4)
