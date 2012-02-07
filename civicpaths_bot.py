@@ -19,19 +19,41 @@ TODO
 """
 
 import json
+import os
 import re
+import sys
 import twitter
 import urlparse
-from sys import exit
-from os import getcwd
+from glob import glob
 from random import randint
 from time import sleep, strptime
 from datetime import datetime
 from calendar import timegm
 
+def usage_exit():
+    """For problems on the commandline.
+    """
+    print "Usage:"
+    print "{0} /path/to/bot_history/".format(sys.argv[0])
+    sys.exit(1)
+
 TWIT_DATETIME_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
-HISTORY_FILENAME = '/home/driscoll/code/civicpaths/civicpaths_bot/civicpaths_history.json'
-CONFIG_FILENAME = '/home/driscoll/code/civicpaths/civicpaths_bot/civicpaths_config.json'
+
+# Get the path to the history from the commandline
+if (len(sys.argv) < 2):
+    usage_exit()
+else:
+    test_path = glob(sys.argv[1])
+    if not (len(test_path) == 1):
+        usage_exit()
+    else:
+        if os.path.isdir(test_path[0]):
+            PATH_FN = test_path[0]
+        else:
+            usage_exit()
+
+HISTORY_FILENAME = os.path.join(PATH_FN,'civicpaths_history.json')
+CONFIG_FILENAME = os.path.join(PATH_FN,'civicpaths_config.json')
 
 # List of regex matching diff kinds of RTs
 # We don't want boring RTs without commentary
@@ -59,9 +81,9 @@ except IOError:
     # If the file isn't found, generate a blank one
     print "\nCould not find {0}".format(CONFIG_FILENAME)
     json.dump(config,open(CONFIG_FILENAME,'w'),indent=4) 
-    print "Generated blank config: {0}/{1}".format(getcwd(), CONFIG_FILENAME)
+    print "Generated blank config: {0}/{1}".format(os.getcwd(), CONFIG_FILENAME)
     print "\nEdit that file by hand and try again.\n"
-    exit(1) 
+    usage_exit() 
 
 # Load config data from the JSON
 try:
@@ -72,9 +94,9 @@ except ValueError:
 for key in config.keys():
     if config[key] == "" or config[key] == []:
         print '\nYour configuration file is missing some important info.'
-        print 'Take a look at: {0}/{1}'.format(getcwd(), CONFIG_FILENAME)
+        print 'Take a look at: {0}/{1}'.format(os.getcwd(), CONFIG_FILENAME)
         print
-        exit(1)
+        usage_exit()
 
 # Generate global OAuth object 
 api = twitter.Twitter(auth=twitter.OAuth(config['OAUTH_TOKEN'], config['OAUTH_TOKEN_SECRET'], config['CONSUMER_KEY'],config['CONSUMER_SECRET']),format='json',api_version=None)
@@ -107,7 +129,7 @@ class History(object):
     def load(self, fn):
         """Import history from JSON file
         """ 
-        print "Loading history from {0}/{1}".format(getcwd(), fn)
+        print "Loading history from {0}/{1}".format(os.getcwd(), fn)
         try:
             h = open(fn, 'r')
             json_history = json.load(h)
